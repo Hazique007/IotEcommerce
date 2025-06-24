@@ -101,22 +101,22 @@ const Inventory = () => {
                   </td>
 
                   <td className="py-3 px-6 max-w-[250px]">
-  {isEditing ? (
-    <textarea
-      className="border px-2 py-1 rounded w-full resize-y overflow-auto"
-      value={editedData.description || ''}
-      onChange={(e) => handleChange('description', e.target.value)}
-      rows={3}
-    />
-  ) : (
-    <div
-      className="line-clamp-3 max-w-[220px] text-sm text-gray-800"
-      title={product.description}
-    >
-      {product.description}
-    </div>
-  )}
-</td>
+                    {isEditing ? (
+                      <textarea
+                        className="border px-2 py-1 rounded w-full resize-y overflow-auto"
+                        value={editedData.description || ''}
+                        onChange={(e) => handleChange('description', e.target.value)}
+                        rows={3}
+                      />
+                    ) : (
+                      <div
+                        className="line-clamp-3 max-w-[220px] text-sm text-gray-800"
+                        title={product.description}
+                      >
+                        {product.description}
+                      </div>
+                    )}
+                  </td>
 
 
 
