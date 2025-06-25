@@ -23,9 +23,8 @@ const AddProduct = () => {
         f1,
         f2,
         f3,
-        
       });
-      toast.success(' Product added successfully!');
+      toast.success('Product added successfully!');
       setName('');
       setDescription('');
       setPrice('');
@@ -33,7 +32,6 @@ const AddProduct = () => {
       setf1('');
       setf2('');
       setf3('');
-      
     } catch (err) {
       toast.error('❌ Failed to add product');
       console.error(err);
@@ -42,67 +40,76 @@ const AddProduct = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-semibold mb-4">Add New Product</h2>
-      <form onSubmit={handleSubmit} className="space-y-4 max-w-lg">
-        <input
-          type="text"
-          placeholder="Product Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-        <textarea
-          placeholder="Product Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        ></textarea>
-        <input
-          type="number"
-          placeholder="Price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
-         <input
-          type="text"
-          placeholder="Image URL"
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        />
+      <h2 className="text-2xl font-semibold mb-6">Add New Product</h2>
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+        {/* Product Name and Price */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <input
+            type="text"
+            placeholder="Product Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="flex-1 p-2 border rounded"
+            required
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full md:w-60 p-2 border rounded"
+            required
+          />
+        </div>
 
+        {/* Description and Image URL */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <textarea
+            placeholder="Product Description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="flex-1 p-2 border rounded"
+            required
+          ></textarea>
+          <input
+            type="text"
+            placeholder="Image URL"
+            value={imageUrl}
+            onChange={(e) => setImageUrl(e.target.value)}
+            className="w-full md:w-1/2 p-2 border rounded"
+            required
+          />
+        </div>
 
+        {/* Features in a Row */}
+        <div className="flex flex-col md:flex-row gap-6">
+          <input
+            type="text"
+            placeholder="Feature 1"
+            value={f1}
+            onChange={(e) => setf1(e.target.value)}
+            className="flex-1 p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Feature 2"
+            value={f2}
+            onChange={(e) => setf2(e.target.value)}
+            className="flex-1 p-2 border rounded"
+            required
+          />
+          <input
+            type="text"
+            placeholder="Feature 3"
+            value={f3}
+            onChange={(e) => setf3(e.target.value)}
+            className="flex-1 p-2 border rounded"
+            required
+          />
+        </div>
 
-
-
-
-        <textarea
-          placeholder="Feature 1"
-          value={f1}
-          onChange={(e) => setf1(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        ></textarea>
-        <textarea
-          placeholder="Feature 2"
-          value={f2}
-          onChange={(e) => setf2(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        ></textarea>
-        <textarea
-          placeholder="Feature 3"
-          value={f3}
-          onChange={(e) =>setf3(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
-        ></textarea>
-       
+        {/* Submit Button */}
         <button
           type="submit"
           className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
@@ -111,7 +118,6 @@ const AddProduct = () => {
         </button>
       </form>
 
-      {/* Toast container */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

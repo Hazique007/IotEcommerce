@@ -1,5 +1,12 @@
 import React from 'react';
-import { FiBox, FiPlusCircle, FiLogOut, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import {
+  FiBox,
+  FiPlusCircle,
+  FiLogOut,
+  FiChevronLeft,
+  FiChevronRight,
+  FiUser,
+} from 'react-icons/fi';
 
 const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => {
   return (
@@ -32,20 +39,32 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
 
       {/* Add Product */}
       <button
-        onClick={() => setActivePage('add')}
+        onClick={() => setActivePage('addproduct')}
         className={`flex items-center gap-3 py-2 px-4 text-left rounded-md mb-2 transition ${
-          activePage === 'add' ? 'bg-[#c20001]' : 'hover:bg-gray-700'
+          activePage === 'addproduct' ? 'bg-[#c20001]' : 'hover:bg-gray-700'
         }`}
       >
         <FiPlusCircle />
         {sidebarOpen && 'Add Product'}
       </button>
 
+      {/* Users */}
+      <button
+        onClick={() => setActivePage('users')}
+        className={`flex items-center gap-3 py-2 px-4 text-left rounded-md mb-2 transition ${
+          activePage === 'users' ? 'bg-[#c20001]' : 'hover:bg-gray-700'
+        }`}
+      >
+        <FiUser />
+        {sidebarOpen && 'Users'}
+      </button>
+
       {/* Logout */}
       <button
         onClick={() => {
           localStorage.removeItem('token');
-          window.location.href = '/';
+          localStorage.removeItem('role');
+          window.location.href = '/home';
         }}
         className="flex items-center gap-3 py-2 px-4 text-left rounded-md hover:bg-red-600 mt-auto transition"
       >

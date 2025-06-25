@@ -5,40 +5,42 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const AuthModal = ({ type, isOpen, onClose }) => {
+const AuthModal = ({ type, setType, isOpen, onClose }) => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [msg, setMsg] = useState('');
 
- const handleLogin = async () => {
-  const res = await axios.post('http://localhost:5000/api/auth/login', {
-    email,
-    password,
-  });
-  localStorage.setItem('token', res.data.token);
-  toast.success('Login successful!');
-  setMsg(res.data.msg);
-  
-  // Delay modal close to allow toast to show
-  setTimeout(() => {
-    onClose();
-  }, 2000); // 2 seconds
-};
+  const handleLogin = async () => {
+    const res = await axios.post('http://localhost:5000/api/auth/login', {
+      email,
+      password,
+    });
 
-const handleSignup = async () => {
-  const res = await axios.post('http://localhost:5000/api/auth/signup', {
-    username,
-    email,
-    password,
-  });
-  toast.success('Signup successful!');
-  setMsg(res.data.msg);
+    localStorage.setItem('token', res.data.token);
+    localStorage.setItem('role', res.data.user.role);
+    toast.success('Login successful!');
+    setMsg(res.data.msg);
 
-  setTimeout(() => {
-    onClose();
-  }, 2000);
-};
+    setTimeout(() => {
+      onClose();
+    }, 2000);
+  };
+
+  const handleSignup = async () => {
+    const res = await axios.post('http://localhost:5000/api/auth/signup', {
+      username,
+      email,
+      password,
+    });
+
+    toast.success('Signup successful!');
+    setMsg('Account created! Please log in now.');
+
+    setTimeout(() => {
+      setType('login'); // 👈 Switch to login modal
+    }, 2000);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,14 +126,15 @@ const handleSignup = async () => {
                   {type === 'login' ? 'Login' : 'Signup'}
                 </button>
 
-                {msg && <p className="text-center text-sm mt-2 text-gray-300">{msg}</p>}
+                {msg && (
+                  <p className="text-center text-sm mt-2 text-gray-300">{msg}</p>
+                )}
               </form>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/* Mount ToastContainer here so it's always active */}
       <ToastContainer
         position="top-right"
         autoClose={3000}

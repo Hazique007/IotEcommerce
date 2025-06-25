@@ -10,11 +10,12 @@ import {
   FiUser,
   FiShoppingCart,
   FiLogIn,
- 
+
 } from 'react-icons/fi';
 
 import { useMediaQuery } from 'react-responsive';
 import gsap from 'gsap';
+import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -41,7 +42,12 @@ const Navbar = () => {
     }
   }, [menuOpen]);
 
-  const links = ['Home', 'Products', 'Cart', 'About'];
+  const links = [
+    { label: 'Home', to: '/home' },
+    { label: 'Products', to: '/allprodcuts' },
+    { label: 'Cart', to: '/cart' },
+    { label: 'About', to: '/about' },
+  ];
 
   return (
     <>
@@ -59,26 +65,53 @@ const Navbar = () => {
             <ul className="flex space-x-6 font-medium">
               {links.map((item, idx) => (
                 <li key={idx}>
-                  <a href={`#${item.toLowerCase()}`} className="relative text-white hover-underline-animation transition-all duration-300">
-                    {item}
-                  </a>
+                  <Link to={item.to} className="relative text-white hover-underline-animation transition-all duration-300">
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
 
             {/* Auth Buttons */}
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setModalType('login')}
-                className="px-4 py-1 bg-[#c20001] text-white rounded-lg text-sm font-semibold hover:shadow-[0_0_10px_#c20001]">
-                Login
-              </button>
-              <button
-                onClick={() => setModalType('signup')}
-                className="px-4 py-1 bg-white text-[#c20001] rounded-lg text-sm font-semibold hover:shadow-[0_0_10px_#c20001]">
-                Signup
-              </button>
-            </div>
+            {/* Auth Buttons */}
+            {/* Auth Buttons */}
+            {localStorage.getItem('token') ? (
+              localStorage.getItem('role') === 'admin' ? (
+                <Link
+                  to="/admin-dash"
+                  className="px-4 py-1 bg-[#c20001] text-white rounded-lg text-sm font-semibold shadow-[0_0_12px_#c20001] hover:shadow-[0_0_20px_#c20001] flex items-center space-x-2 transition"
+                >
+                  <span>Go to Dashboard</span>
+                  <span className="text-lg">→</span>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('role');
+                    window.location.reload();
+                  }}
+                  className="px-4 py-1 bg-[#c20001] text-white rounded-lg text-sm font-semibold hover:shadow-[0_0_10px_#c20001]"
+                >
+                  Logout
+                </button>
+              )
+            ) : (
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => setModalType('login')}
+                  className="px-4 py-1 bg-[#c20001] text-white rounded-lg text-sm font-semibold hover:shadow-[0_0_10px_#c20001]">
+                  Login
+                </button>
+                <button
+                  onClick={() => setModalType('signup')}
+                  className="px-4 py-1 bg-white text-[#c20001] rounded-lg text-sm font-semibold hover:shadow-[0_0_10px_#c20001]">
+                  Signup
+                </button>
+              </div>
+            )}
+
+
           </div>
         </nav>
       ) : (

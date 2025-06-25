@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-
+import { Link } from "react-router-dom";
 const devices = [
   { name: "Arduino", src: "./prod1.png" },
   { name: "ESP32", src: "./prod2.png" },
@@ -30,11 +30,13 @@ const DeviceLineup = () => {
           whileHover={{ y: -20, scale: 1.05 }}
           transition={{ type: "spring", stiffness: 200 }}
         >
+          <Link to={'/allprodcuts'}>
           <img
             src={device.src}
             alt={device.name}
             className="h-[150px] object-contain transition-all duration-300 group-hover:drop-shadow-[0_0_15px_#c20001]"
           />
+          </Link>
 
           {/* Hover name below image */}
           <div className="text-xs text-white mt-2 opacity-0 group-hover:opacity-100 transition duration-300">

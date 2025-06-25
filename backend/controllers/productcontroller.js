@@ -18,29 +18,54 @@ const addProduct = async (req, res) => {
 // Get All Products
 const getAllProducts = async (req, res) => {
   try {
-    const [products] = await db.execute('SELECT * FROM products ORDER BY created_at DESC');
-    res.json(products);
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+    const search = req.query.search || '';
+
+    // For filtering by name using LIKE
+    const searchQuery = `%${search}%`;
+
+    const [products] = await db.execute(
+      'SELECT * FROM products WHERE name LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ?',
+      [searchQuery, limit, offset]
+    );
+
+    const [[{ total }]] = await db.execute(
+      'SELECT COUNT(*) as total FROM products WHERE name LIKE ?',
+      [searchQuery]
+    );
+
+    res.json({ products, total });
   } catch (err) {
     console.error('Fetch Products Error:', err);
     res.status(500).json({ msg: 'Server error fetching products' });
   }
 };
 
+
 // Update Product
-const updateProduct = async (req, res) => {
-  const { id } = req.params;
-  const { name, description, price, image_url, f1, f2, f3 } = req.body;
+const updateProduct = async (req, res) =>{
   try {
-    await db.execute(
-      'UPDATE products SET name = ?, description = ?, price = ?, image_url = ?, f1 = ? ,f2 = ? ,f3 = ? WHERE id = ?',
-      [name, description, price, image_url, f1, f2, f3, id]
-    );
-    res.json({ msg: 'Product updated successfully' });
+    const userID = req.user.id;
+    const cartItems = req.body; // full updated cart
+
+    // Clear and re-insert (or update existing)
+    await db.execute('DELETE FROM cart WHERE userID = ?', [userID]);
+
+    for (let item of cartItems) {
+      await db.execute(
+        'INSERT INTO cart (userID, productID, qty) VALUES (?, ?, ?)',
+        [userID, item.id, item.qty]
+      );
+    }
+
+    res.json({ msg: 'Cart updated' });
   } catch (err) {
-    console.error('Update Product Error:', err);
-    res.status(500).json({ msg: 'Server error updating product' });
+    console.error('Update cart error:', err);
+    res.status(500).json({ msg: 'Failed to update cart' });
   }
-};
+}
 
 // Delete Product
 const deleteProduct = async (req, res) => {
