@@ -5,22 +5,26 @@ const {
   getAllProducts,
   updateProduct,
   deleteProduct,
-  getProductById
+  getProductById,
+  getAllWithoutPagination
 } = require('../controllers/productcontroller');
 
 // Add Product
 router.post('/add', addProduct);
 
-// Get All Products
+// Get All Products (paginated)
 router.get('/getallproducts', getAllProducts);
 
-//get a specific product
-router.get('/:id',getProductById )
+// Get All Products (no pagination)
+router.get('/getall', getAllWithoutPagination);
 
 // Update Product
 router.put('/:id', updateProduct);
 
 // Delete Product
 router.delete('/:id', deleteProduct);
+
+// ✅ This should be the LAST route
+router.get('/:id', getProductById);
 
 module.exports = router;

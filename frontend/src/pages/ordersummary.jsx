@@ -147,7 +147,7 @@ const OrderSummary = () => {
   }, [paymentMethod, total]);
 
   return (
-    <div className="min-h-screen bg-black text-white pt-20 px-6">
+    <div className="min-h-screen bg-black text-white pt-20 px-6 pb-16">
       <Navbar />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-7xl mx-auto mt-8">
         <div className="space-y-4">

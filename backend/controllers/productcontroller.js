@@ -1,5 +1,6 @@
 const db = require('../db');
 
+
 // Add Product
 const addProduct = async (req, res) => {
   const { name, description, price, image_url, f1, f2, f3 } = req.body;
@@ -43,29 +44,48 @@ const getAllProducts = async (req, res) => {
   }
 };
 
+const getAllWithoutPagination = async (req, res) => {
+  try {
+    const [products] = await db.execute('SELECT * FROM products ORDER BY created_at DESC');
+    res.json({ products });
+  } catch (err) {
+    console.error('Error fetching all products:', err);
+    res.status(500).json({ msg: 'Server error fetching all products' });
+  }
+};
+
+
 
 // Update Product
-const updateProduct = async (req, res) =>{
+const updateProduct = async (req, res) => {
   try {
-    const userID = req.user.id;
-    const cartItems = req.body; // full updated cart
+    const productId = req.params.id;
+    const { name, description, price, image_url, f1, f2, f3 } = req.body;
 
-    // Clear and re-insert (or update existing)
-    await db.execute('DELETE FROM cart WHERE userID = ?', [userID]);
+    const [result] = await db.execute(
+      `UPDATE products SET 
+        name = ?, 
+        description = ?, 
+        price = ?, 
+        image_url = ?, 
+        f1 = ?, 
+        f2 = ?, 
+        f3 = ? 
+      WHERE id = ?`,
+      [name, description, price, image_url, f1, f2, f3, productId]
+    );
 
-    for (let item of cartItems) {
-      await db.execute(
-        'INSERT INTO cart (userID, productID, qty) VALUES (?, ?, ?)',
-        [userID, item.id, item.qty]
-      );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ msg: 'Product not found' });
     }
 
-    res.json({ msg: 'Cart updated' });
+    res.json({ msg: 'Product updated successfully' });
   } catch (err) {
-    console.error('Update cart error:', err);
-    res.status(500).json({ msg: 'Failed to update cart' });
+    console.error('Update product error:', err);
+    res.status(500).json({ msg: 'Failed to update product' });
   }
-}
+};
+
 
 // Delete Product
 const deleteProduct = async (req, res) => {
@@ -103,6 +123,6 @@ module.exports = {
   getAllProducts,
   updateProduct,
   deleteProduct,
-  getProductById
+  getProductById,getAllWithoutPagination
 };
 
