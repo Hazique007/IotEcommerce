@@ -12,7 +12,7 @@ const AuthModal = ({ type, setType, isOpen, onClose }) => {
   const [msg, setMsg] = useState('');
 
   const handleLogin = async () => {
-    const res = await axios.post('http://localhost:5000/api/auth/login', {
+    const res = await axios.post('https://iotecommerce-2.onrender.com/api/auth/login', {
       email,
       password,
     });
@@ -28,7 +28,7 @@ const AuthModal = ({ type, setType, isOpen, onClose }) => {
   };
 
   const handleSignup = async () => {
-    const res = await axios.post('http://localhost:5000/api/auth/signup', {
+    const res = await axios.post('https://iotecommerce-2.onrender.com/api/auth/signup', {
       username,
       email,
       password,

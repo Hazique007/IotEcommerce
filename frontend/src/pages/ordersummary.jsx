@@ -19,10 +19,10 @@ const OrderSummary = () => {
       const token = localStorage.getItem('token');
       try {
         const [cartRes, tempRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/cart', {
+          axios.get('https://iotecommerce-2.onrender.com/api/cart', {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:5000/api/orders/temp', {
+          axios.get('https://iotecommerce-2.onrender.com/api/orders/temp', {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -52,7 +52,7 @@ const OrderSummary = () => {
     const token = localStorage.getItem('token');
     try {
       await axios.delete(
-        `http://localhost:5000/api/orders/delete/${source}/${productID}`,
+        `https://iotecommerce-2.onrender.com/api/orders/delete/${source}/${productID}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setItems(prev => prev.filter(item => item.productID !== productID));
@@ -66,7 +66,7 @@ const OrderSummary = () => {
   const handlePlaceOrder = async (gpayData = null) => {
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch('http://localhost:5000/api/orders/place', {
+      const res = await fetch('https://iotecommerce-2.onrender.com/api/orders/place', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -25,8 +25,8 @@ const AuthPage = () => {
 
     try {
       const url = isLogin
-        ? 'http://localhost:5000/api/auth/login'
-        : 'http://localhost:5000/api/auth/signup';
+        ? 'https://iotecommerce-2.onrender.com/api/auth/login'
+        : 'https://iotecommerce-2.onrender.com/api/auth/signup';
 
       const { data } = await axios.post(url, formData);
 

@@ -12,7 +12,7 @@ const AllProducts = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/products/getall');
+        const res = await axios.get('https://iotecommerce-2.onrender.com/api/products/getall');
         setProducts(res.data.products);
       } catch (err) {
         console.error('Error fetching products:', err);

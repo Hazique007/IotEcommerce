@@ -15,7 +15,7 @@ const AddProduct = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/products/add', {
+      await axios.post('https://iotecommerce-2.onrender.com/api/products/add', {
         name,
         description,
         price,

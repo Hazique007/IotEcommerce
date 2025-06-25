@@ -21,7 +21,7 @@ const ProductDetails = () => {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/products/${id}`)
+      .get(`https://iotecommerce-2.onrender.com/api/products/${id}`)
       .then((res) => setProduct(res.data))
       .catch((err) => console.error(err));
   }, [id]);
@@ -37,7 +37,7 @@ const ProductDetails = () => {
 
     try {
       await axios.post(
-        'http://localhost:5000/api/cart/add',
+        'https://iotecommerce-2.onrender.com/api/cart/add',
         {
           productID: product.id,
           quantity: 1,
@@ -68,7 +68,7 @@ const ProductDetails = () => {
 
     try {
       await axios.post(
-        'http://localhost:5000/api/orders/buynow',
+        'https://iotecommerce-2.onrender.com/api/orders/buynow',
         { productID: product.id },
         {
           headers: { Authorization: `Bearer ${token}` },

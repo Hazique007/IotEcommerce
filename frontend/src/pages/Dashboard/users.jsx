@@ -20,7 +20,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/auth/users`, {
+      const res = await axios.get(`https://iotecommerce-2.onrender.com/api/auth/users`, {
         params: { page, limit: LIMIT, search }
       });
       setUsers(res.data.users);
@@ -38,7 +38,7 @@ const Users = () => {
 
   const handleSave = async (userID) => {
     try {
-      await axios.put(`http://localhost:5000/api/auth/users/${userID}`, editedData);
+      await axios.put(`https://iotecommerce-2.onrender.com/api/auth/users/${userID}`, editedData);
       toast.success('User updated');
       setEditingId(null);
       fetchUsers();
@@ -51,7 +51,7 @@ const Users = () => {
   const handleDelete = async (userID) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`http://localhost:5000/api/users/${userID}`);
+        await axios.delete(`https://iotecommerce-2.onrender.com/api/users/${userID}`);
         toast.success('User deleted');
         fetchUsers();
       } catch (err) {

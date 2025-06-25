@@ -19,7 +19,7 @@ const Inventory = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/products/getallproducts`, {
+      const res = await axios.get(`https://iotecommerce-2.onrender.com/api/products/getallproducts`, {
         params: {
           page,
           search
@@ -48,7 +48,7 @@ const Inventory = () => {
 
   const handleSave = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/products/${editId}`, editedData);
+      await axios.put(`https://iotecommerce-2.onrender.com/api/products/${editId}`, editedData);
       toast.success(`Product ID ${editId} updated successfully`);
       setEditId(null);
       setEditedData({});
@@ -61,7 +61,7 @@ const Inventory = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      await axios.delete(`https://iotecommerce-2.onrender.com/api/products/${id}`);
       toast.success(`Deleted product ID ${id}`);
       fetchProducts();
     } catch (err) {

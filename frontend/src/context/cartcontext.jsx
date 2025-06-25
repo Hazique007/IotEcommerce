@@ -14,7 +14,7 @@ export const CartProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const res = await axios.get('http://localhost:5000/api/cart', {
+      const res = await axios.get('https://iotecommerce-2.onrender.com/api/cart', {
         headers: {
           Authorization: `Bearer ${token}`,
         },

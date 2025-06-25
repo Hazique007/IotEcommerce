@@ -19,7 +19,7 @@ const CartPage = () => {
       }
 
       try {
-        const res = await fetch('http://localhost:5000/api/cart', {
+        const res = await fetch('https://iotecommerce-2.onrender.com/api/cart', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -48,7 +48,7 @@ const updateQty = async (idx, delta) => {
 
   try {
     const token = localStorage.getItem('token');
-    await fetch('http://localhost:5000/api/cart/update', {
+    await fetch('https://iotecommerce-2.onrender.com/api/cart/update', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ const updateQty = async (idx, delta) => {
     });
 
     // Optional: re-fetch latest cart from DB
-    const res = await fetch('http://localhost:5000/api/cart', {
+    const res = await fetch('https://iotecommerce-2.onrender.com/api/cart', {
       headers: { Authorization: `Bearer ${token}` },
     });
     const fresh = await res.json();

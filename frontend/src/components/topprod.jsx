@@ -21,7 +21,7 @@ const ProductsSection = () => {
       try {
         const ids = [1, 2, 3];
         const responses = await Promise.all(
-          ids.map(id => axios.get(`http://localhost:5000/api/products/${id}`))
+          ids.map(id => axios.get(`https://iotecommerce-2.onrender.com/api/products/${id}`))
         );
         const data = responses.map(res => res.data);
         setProductData(data);
