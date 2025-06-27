@@ -12,7 +12,7 @@ const AuthModal = ({ type, setType, isOpen, onClose }) => {
   const [msg, setMsg] = useState('');
 
   const handleLogin = async () => {
-    const res = await axios.post('https://iotecommerce-2.onrender.com/api/auth/login', {
+    const res = await axios.post('http://localhost:5000/api/auth/login', {
       email,
       password,
     });
@@ -27,8 +27,9 @@ const AuthModal = ({ type, setType, isOpen, onClose }) => {
     }, 2000);
   };
 
-  const handleSignup = async () => {
-    const res = await axios.post('https://iotecommerce-2.onrender.com/api/auth/signup', {
+ const handleSignup = async () => {
+  try {
+    const res = await axios.post('http://localhost:5000/api/auth/signup', {
       username,
       email,
       password,
@@ -40,7 +41,15 @@ const AuthModal = ({ type, setType, isOpen, onClose }) => {
     setTimeout(() => {
       setType('login'); // 👈 Switch to login modal
     }, 2000);
-  };
+  } catch (err) {
+    if (err.response?.status === 409) {
+      toast.error('User already exists!');
+    } else {
+      toast.error(' Signup failed. Try again.');
+    }
+  }
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

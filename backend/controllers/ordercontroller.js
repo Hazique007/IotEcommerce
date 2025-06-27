@@ -1,29 +1,33 @@
 // controllers/orderController.js
 const db = require('../db');
+const axios = require('axios'); 
 
 const placeOrder = async (req, res) => {
   const userID = req.userID;
-  const { paymentMethod } = req.body;
+  const { paymentMethod, source } = req.body;
 
   try {
-    // 1. Get all items from both cart and temp_orders
-    const [cartItems] = await db.execute(
-      `SELECT c.productID, p.name, p.description, p.price, c.quantity AS qty
-       FROM cart c
-       JOIN products p ON c.productID = p.id
-       WHERE c.userID = ?`,
-      [userID]
-    );
+    let allItems = [];
 
-    const [tempItems] = await db.execute(
-      `SELECT t.productID, p.name, p.description, p.price, t.quantity AS qty
-       FROM temp_orders t
-       JOIN products p ON t.productID = p.id
-       WHERE t.userID = ?`,
-      [userID]
-    );
-
-    const allItems = [...cartItems, ...tempItems];
+    if (source === 'buy_now') {
+      const [tempItems] = await db.execute(
+        `SELECT t.productID, p.name, p.description, p.price, t.quantity AS qty
+         FROM temp_orders t
+         JOIN products p ON t.productID = p.id
+         WHERE t.userID = ?`,
+        [userID]
+      );
+      allItems = tempItems;
+    } else {
+      const [cartItems] = await db.execute(
+        `SELECT c.productID, p.name, p.description, p.price, c.quantity AS qty
+         FROM cart c
+         JOIN products p ON c.productID = p.id
+         WHERE c.userID = ?`,
+        [userID]
+      );
+      allItems = cartItems;
+    }
 
     if (allItems.length === 0) {
       return res.status(400).json({ msg: 'No items to place order' });
@@ -31,26 +35,61 @@ const placeOrder = async (req, res) => {
 
     const totalAmount = allItems.reduce((sum, item) => sum + item.qty * item.price, 0);
 
-    // 2. Insert new order
     const [orderResult] = await db.execute(
       'INSERT INTO orders (userID, totalAmount, paymentMethod) VALUES (?, ?, ?)',
       [userID, totalAmount, paymentMethod]
     );
     const orderID = orderResult.insertId;
 
-    // 3. Insert order items
-    const orderItemsQueries = allItems.map(item =>
-      db.execute(
+    const conn = await db.getConnection();
+    await conn.beginTransaction();
+
+    const orderOps = allItems.map(async (item) => {
+      await conn.execute(
         `INSERT INTO order_items (orderID, productID, quantity, price)
          VALUES (?, ?, ?, ?)`,
         [orderID, item.productID, item.qty, item.price]
-      )
-    );
-    await Promise.all(orderItemsQueries);
+      );
 
-    // 4. Clean up cart and temp_orders
-    await db.execute('DELETE FROM cart WHERE userID = ?', [userID]);
-    await db.execute('DELETE FROM temp_orders WHERE userID = ?', [userID]);
+      await conn.execute(
+        `UPDATE products SET quantity = quantity - ? WHERE id = ?`,
+        [item.qty, item.productID]
+      );
+
+      await conn.execute(
+        `INSERT INTO inventory_movements 
+         (product_id, change_type, quantity, quantity_received, received_by, received_date, invoice_number, note)
+         VALUES (?, 'deduct', ?, NULL, ?, NOW(), NULL, ?)`,
+        [
+          item.productID,
+          item.qty,
+          'system',
+          `Order #${orderID} by User ${userID}`
+        ]
+      );
+    });
+
+    await Promise.all(orderOps);
+
+    if (source === 'buy_now') {
+      await conn.execute('DELETE FROM temp_orders WHERE userID = ?', [userID]);
+    } else {
+      await conn.execute('DELETE FROM cart WHERE userID = ?', [userID]);
+    }
+
+    await conn.commit();
+    conn.release();
+
+    // ✅ Trigger low stock email after successful order placement
+    const [lowStock] = await db.execute(
+      'SELECT id, name, quantity FROM products WHERE quantity < 5'
+    );
+
+    if (lowStock.length > 0) {
+      await axios.post('http://localhost:5000/api/inventory/notify-low-stock', {
+        items: lowStock
+      });
+    }
 
     res.json({ msg: 'Order placed successfully', orderID });
   } catch (err) {
@@ -62,15 +101,20 @@ const placeOrder = async (req, res) => {
 
 
 
+
 const buyNowOrder = async (req, res) => {
   const userID = req.userID;
   const { productID } = req.body;
 
   try {
+    // Clear previous buy now orders for this user
+    await db.execute('DELETE FROM temp_orders WHERE userID = ?', [userID]);
+
+    // Check if product exists
     const [[product]] = await db.execute('SELECT * FROM products WHERE id = ?', [productID]);
     if (!product) return res.status(404).json({ msg: 'Product not found' });
 
-    // Insert order (you can use a temp_orders table instead if needed)
+    // Insert the new one
     await db.execute(
       'INSERT INTO temp_orders (userID, productID, quantity) VALUES (?, ?, ?)',
       [userID, productID, 1]
@@ -82,6 +126,7 @@ const buyNowOrder = async (req, res) => {
     res.status(500).json({ msg: 'Buy now failed' });
   }
 };
+
 const getBuyNowItems = async (req, res) => {
   const userID = req.userID;
 

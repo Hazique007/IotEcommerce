@@ -10,7 +10,6 @@ import {
   FiUser,
   FiShoppingCart,
   FiLogIn,
-
 } from 'react-icons/fi';
 
 import { useMediaQuery } from 'react-responsive';
@@ -21,6 +20,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [modalType, setModalType] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
   const isDesktopOrLaptop = useMediaQuery({ query: '(min-width: 1024px)' });
 
   useEffect(() => {
@@ -31,7 +31,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Animate drawer open/close
   useEffect(() => {
     if (menuOpen) {
       gsap.fromTo(
@@ -49,19 +48,25 @@ const Navbar = () => {
     { label: 'About', to: '/about' },
   ];
 
+  const handleLogout = () => {
+    setLogoutLoading(true);
+    setTimeout(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      window.location.reload();
+    }, 1500);
+  };
+
   return (
     <>
       {isDesktopOrLaptop ? (
-        // Top navbar for desktop
         <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/10 backdrop-blur-lg shadow-md' : 'bg-transparent'}`}>
-          <div className=" mx-auto w-screen px-6 py-4 flex items-center justify-between">
-            {/* Logo */}
+          <div className="mx-auto w-screen px-6 py-4 flex items-center justify-between">
             <a href="https://enggenv.com" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-2">
               <img src="./logo.png" alt="Logo" className="w-10 h-10 object-contain" />
               <h1 className="text-xl font-bold font-poppins text-white">IoTera</h1>
             </a>
 
-            {/* Nav Links */}
             <ul className="flex space-x-6 font-medium">
               {links.map((item, idx) => (
                 <li key={idx}>
@@ -72,9 +77,6 @@ const Navbar = () => {
               ))}
             </ul>
 
-            {/* Auth Buttons */}
-            {/* Auth Buttons */}
-            {/* Auth Buttons */}
             {localStorage.getItem('token') ? (
               localStorage.getItem('role') === 'admin' ? (
                 <Link
@@ -86,14 +88,28 @@ const Navbar = () => {
                 </Link>
               ) : (
                 <button
-                  onClick={() => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('role');
-                    window.location.reload();
-                  }}
-                  className="px-4 py-1 bg-[#c20001] text-white rounded-lg text-sm font-semibold hover:shadow-[0_0_10px_#c20001]"
+                  onClick={handleLogout}
+                  className="px-4 py-1 bg-[#c20001] text-white rounded-lg text-sm font-semibold hover:shadow-[0_0_10px_#c20001] flex items-center justify-center gap-2 min-w-[90px]"
                 >
-                  Logout
+                  {logoutLoading ? (
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="white"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="#fff"
+                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 108 8h-2a6 6 0 11-6-6z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    'Logout'
+                  )}
                 </button>
               )
             ) : (
@@ -110,28 +126,25 @@ const Navbar = () => {
                 </button>
               </div>
             )}
-
-
           </div>
         </nav>
       ) : (
-        // Bottom navbar for mobile
         <nav className="fixed bottom-0 left-0 w-full z-50 bg-black/90 backdrop-blur-lg shadow-inner border-t border-white/10">
           <div className="flex justify-around items-center py-2">
-            <a href="#home" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
+            <a href="/home" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
               <FiHome size={18} />
               <span>Home</span>
             </a>
-            <a href="#products" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
+            <a href="/allprodcuts" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
               <FiBox size={18} />
               <span>Products</span>
             </a>
-            <a href="#about" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
+            <a href="/cart" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
               <FiShoppingCart size={18} />
               <span>Cart</span>
             </a>
-            <a href="#contact" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
-              < FiUser size={18} />
+            <a href="/profile" className="flex flex-col items-center text-white text-xs hover:text-[#c20001] transition">
+              <FiUser size={18} />
               <span>Profile</span>
             </a>
             <button
@@ -143,10 +156,8 @@ const Navbar = () => {
             </button>
           </div>
         </nav>
-
       )}
 
-      {/* Auth Modal */}
       {modalType && (
         <AuthModal
           type={modalType}
@@ -155,7 +166,6 @@ const Navbar = () => {
         />
       )}
 
-      {/* Link underline animation */}
       <style>{`
         .hover-underline-animation::after {
           content: '';

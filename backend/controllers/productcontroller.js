@@ -3,11 +3,11 @@ const db = require('../db');
 
 // Add Product
 const addProduct = async (req, res) => {
-  const { name, description, price, image_url, f1, f2, f3 } = req.body;
+  const { name, description, price, image_url, f1, f2, f3, quantity } = req.body;
   try {
     await db.execute(
-      'INSERT INTO products (name, description, price, image_url, f1, f2, f3) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [name, description, price, image_url, f1, f2, f3]
+      'INSERT INTO products (name, description, price, image_url, f1, f2, f3, quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      [name, description, price, image_url, f1, f2, f3, quantity]
     );
     res.status(201).json({ msg: 'Product added successfully' });
   } catch (err) {
@@ -15,6 +15,7 @@ const addProduct = async (req, res) => {
     res.status(500).json({ msg: 'Server error while adding product' });
   }
 };
+
 
 // Get All Products
 const getAllProducts = async (req, res) => {
@@ -60,7 +61,7 @@ const getAllWithoutPagination = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
-    const { name, description, price, image_url, f1, f2, f3 } = req.body;
+    const { name, description, price, image_url, f1, f2, f3, quantity } = req.body;
 
     const [result] = await db.execute(
       `UPDATE products SET 
@@ -70,9 +71,10 @@ const updateProduct = async (req, res) => {
         image_url = ?, 
         f1 = ?, 
         f2 = ?, 
-        f3 = ? 
+        f3 = ?, 
+        quantity = ?
       WHERE id = ?`,
-      [name, description, price, image_url, f1, f2, f3, productId]
+      [name, description, price, image_url, f1, f2, f3, quantity, productId]
     );
 
     if (result.affectedRows === 0) {
@@ -85,6 +87,7 @@ const updateProduct = async (req, res) => {
     res.status(500).json({ msg: 'Failed to update product' });
   }
 };
+
 
 
 // Delete Product
@@ -117,12 +120,46 @@ const getProductById = async (req, res) => {
   }
 };
 
+const getLowStockProducts = async (req, res) => {
+  try {
+    const [products] = await db.execute(
+      'SELECT * FROM products WHERE quantity < 5 ORDER BY quantity ASC'
+    );
+    res.json({ lowStock: products });
+  } catch (err) {
+    console.error('Low Stock Error:', err);
+    res.status(500).json({ msg: 'Error fetching low stock products' });
+  }
+};
+
+const updateProductQuantity = async (req, res) => {
+  const { id } = req.params;
+  const { quantity } = req.body;
+
+  try {
+    const [result] = await db.execute(
+      'UPDATE products SET quantity = ? WHERE id = ?',
+      [quantity, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ msg: 'Product not found' });
+    }
+
+    res.json({ msg: 'Quantity updated successfully' });
+  } catch (err) {
+    console.error('Quantity update error:', err);
+    res.status(500).json({ msg: 'Error updating quantity' });
+  }
+};
+
+
 
 module.exports = {
   addProduct,
   getAllProducts,
   updateProduct,
   deleteProduct,
-  getProductById,getAllWithoutPagination
+  getProductById,getAllWithoutPagination,getLowStockProducts, updateProductQuantity
 };
 

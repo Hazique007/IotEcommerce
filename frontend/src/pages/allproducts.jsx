@@ -1,23 +1,45 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import axios from 'axios';
 import Navbar from '../components/navbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode'; // Import jwtDecode to decode JWT tokens
+
 
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true); // Loading state
+  const [username, setUsername] = useState(''); // Username state
+
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get('https://iotecommerce-2.onrender.com/api/products/getall');
+        setLoading(true);
+        const res = await axios.get('http://localhost:5000/api/products/getall');
         setProducts(res.data.products);
       } catch (err) {
         console.error('Error fetching products:', err);
+      } finally {
+        setLoading(false);
       }
     };
+
+    // Decode username from JWT
+    const token = localStorage.getItem('token');
+    console.log(token);
+
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUsername(decoded.name || decoded.username); // 👈 Adjust based on your token structure
+      } catch (e) {
+        console.error('Failed to decode token', e);
+      }
+    }
+
     fetchProducts();
   }, []);
 
@@ -48,6 +70,19 @@ const AllProducts = () => {
     visible: { opacity: 1, scale: 1, transition: { duration: 0.4, ease: 'easeOut' } },
   };
 
+
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#111111] via-[#0d0d0d] to-[#000000] text-white">
+        <div className="relative w-16 h-16">
+          <div className="absolute w-full h-full border-4 border-t-[#c20001] border-white/20 rounded-full animate-spin"></div>
+          <div className="absolute w-8 h-8 top-2 left-2 bg-[#c20001] rounded-full shadow-lg animate-ping"></div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       className="min-h-screen bg-gradient-to-br from-[#111111] via-[#0d0d0d] to-[#000000] text-white"
@@ -57,7 +92,19 @@ const AllProducts = () => {
     >
       <Navbar />
       <div className="pt-24 px-4 sm:px-8 lg:px-16 pb-16">
-        <div className="flex justify-end mb-8">
+        <div className="flex justify-between mb-8">
+
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-[#ff4d4d] via-[#c20001] to-[#ff4d4d] text-transparent bg-clip-text drop-shadow-sm">
+              {username ? (
+                <>
+                  Let’s shop, <span className="text-white">{username.charAt(0).toUpperCase() + username.slice(1)}</span>
+                </>
+              ) : (
+                "Let's shop!"
+              )}
+            </h2>
+          </div>
           <input
             type="text"
             placeholder="Search products..."
@@ -87,6 +134,7 @@ const AllProducts = () => {
                     <img
                       src={product.image_url}
                       alt={product.name}
+                      loading="lazy"
                       className="object-contain max-h-full max-w-full"
                     />
                   </div>

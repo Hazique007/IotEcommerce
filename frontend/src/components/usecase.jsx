@@ -3,44 +3,34 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaQuoteLeft } from 'react-icons/fa';
 import AnimatedSection from './animatedsection';
 import { useMediaQuery } from 'react-responsive';
-
-const useCases = [
-  {
-    company: 'XYZ Industries',
-    logo: './xyz-logo.png',
-    quote:
-      'With real-time air quality tracking from E&E IoT devices, we cut monitoring costs by 40%.',
-    name: 'Rajeev Kumar',
-    position: 'Plant Head, XYZ Industries',
-  },
-  {
-    company: 'AquaSense Ltd.',
-    logo: './aqua-logo.png',
-    quote:
-      'Our groundwater insights are now 10x more accurate. Best investment in a decade!',
-    name: 'Sonal Mehra',
-    position: 'Operations Lead, AquaSense',
-  },
-  {
-    company: 'EnviroTech Corp.',
-    logo: './enviro-logo.png',
-    quote:
-      'Live dashboards and remote alerts streamlined our compliance reporting process.',
-    name: 'Jonathan Reed',
-    position: 'CTO, EnviroTech',
-  },
-];
+import axios from 'axios';
 
 const UseCaseCarousel = () => {
+  const [useCases, setUseCases] = useState([]);
   const [current, setCurrent] = useState(0);
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
 
   useEffect(() => {
+    const fetchUseCases = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/usecases'); // Update URL if needed
+        setUseCases(res.data);
+      } catch (err) {
+        console.error('Error fetching use cases:', err);
+      }
+    };
+
+    fetchUseCases();
+  }, []);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % useCases.length);
-    }, 5000); // Change every 5 seconds
+    }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [useCases]);
+
+  if (!useCases.length) return null;
 
   return (
     <AnimatedSection>
@@ -49,8 +39,7 @@ const UseCaseCarousel = () => {
           Trusted by Industry Leaders
         </h2>
 
-        {isMobile ? 
-        (
+        {isMobile ? (
           <div className="relative w-full flex justify-center">
             <AnimatePresence mode="wait">
               <motion.div
@@ -63,7 +52,7 @@ const UseCaseCarousel = () => {
               >
                 <div className="flex items-center space-x-4 mb-4">
                   <img
-                    src={useCases[current].logo}
+                    src={useCases[current].logo_url}
                     alt={useCases[current].company}
                     className="w-12 h-12 object-contain rounded-full bg-white p-1"
                   />
@@ -100,7 +89,7 @@ const UseCaseCarousel = () => {
                 >
                   <div className="flex items-center space-x-4 mb-4">
                     <img
-                      src={caseStudy.logo}
+                      src={caseStudy.logo_url}
                       alt={caseStudy.company}
                       className="w-12 h-12 object-contain rounded-full bg-white p-1"
                     />

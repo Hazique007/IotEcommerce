@@ -6,7 +6,7 @@ const {
   updateProduct,
   deleteProduct,
   getProductById,
-  getAllWithoutPagination
+  getAllWithoutPagination,getLowStockProducts,updateProductQuantity
 } = require('../controllers/productcontroller');
 
 // Add Product
@@ -23,6 +23,11 @@ router.put('/:id', updateProduct);
 
 // Delete Product
 router.delete('/:id', deleteProduct);
+
+router.get('/lowstock', getLowStockProducts);
+
+// Update only quantity
+router.put('/update-qty/:id', updateProductQuantity);
 
 // ✅ This should be the LAST route
 router.get('/:id', getProductById);

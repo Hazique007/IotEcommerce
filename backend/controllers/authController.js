@@ -6,17 +6,24 @@ const jwt = require('jsonwebtoken');
 const signup = async (req, res) => {
   const { username, email, password } = req.body;
 
+  if (!username || !email || !password) {
+    return res.status(400).json({ msg: 'All fields are required' });
+  }
+
   try {
+    // Check if user already exists
     const [existingUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
     if (existingUsers.length > 0) {
-      return res.status(400).json({ msg: 'User already exists' });
+      return res.status(409).json({ msg: 'User already exists' });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Insert new user
     await db.execute(
       'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
-      [username, email, hashedPassword, 'user'] // default role is 'user'
+      [username.trim(), email.toLowerCase(), hashedPassword, 'user']
     );
 
     res.status(201).json({ msg: 'User created successfully' });
@@ -25,6 +32,7 @@ const signup = async (req, res) => {
     res.status(500).json({ msg: 'Server error' });
   }
 };
+
 
 // LOGIN
 const login = async (req, res) => {
@@ -45,7 +53,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userID: user.userID, email: user.email, role: user.role },
+      { userID: user.userID, email: user.email, role: user.role,username: user.username },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );

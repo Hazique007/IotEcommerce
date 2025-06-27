@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   FiBox,
   FiPlusCircle,
@@ -13,11 +12,11 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
     <div
       className={`${
         sidebarOpen ? 'w-64' : 'w-16'
-      } bg-[#111827] text-white flex flex-col p-4 rounded-xl ml-4 mt-4 mb-4 min-h-[90vh] transition-all duration-300 relative`}
+      } bg-[#f9f9f9] text-black flex flex-col p-4 border border-black  rounded-xl ml-4 mt-4 mb-4 min-h-[90vh] transition-all duration-300 relative shadow-md`}
     >
       {/* Toggle Button */}
       <button
-        className="absolute -right-3 top-4 bg-[#111827] p-1 rounded-full border border-white hover:bg-gray-700 transition"
+        className="absolute -right-3 top-4 bg-[#f9f9f9] p-1 rounded-full border border-gray-400 hover:bg-gray-200 transition"
         onClick={() => setSidebarOpen(!sidebarOpen)}
       >
         {sidebarOpen ? <FiChevronLeft /> : <FiChevronRight />}
@@ -30,7 +29,7 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
       <button
         onClick={() => setActivePage('inventory')}
         className={`flex items-center gap-3 py-2 px-4 text-left rounded-md mb-2 transition ${
-          activePage === 'inventory' ? 'bg-[#c20001]' : 'hover:bg-gray-700'
+          activePage === 'inventory' ? 'bg-blue-100' : 'hover:bg-gray-200'
         }`}
       >
         <FiBox />
@@ -41,7 +40,7 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
       <button
         onClick={() => setActivePage('addproduct')}
         className={`flex items-center gap-3 py-2 px-4 text-left rounded-md mb-2 transition ${
-          activePage === 'addproduct' ? 'bg-[#c20001]' : 'hover:bg-gray-700'
+          activePage === 'addproduct' ? 'bg-blue-100' : 'hover:bg-gray-200'
         }`}
       >
         <FiPlusCircle />
@@ -52,7 +51,7 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
       <button
         onClick={() => setActivePage('users')}
         className={`flex items-center gap-3 py-2 px-4 text-left rounded-md mb-2 transition ${
-          activePage === 'users' ? 'bg-[#c20001]' : 'hover:bg-gray-700'
+          activePage === 'users' ? 'bg-blue-100' : 'hover:bg-gray-200'
         }`}
       >
         <FiUser />
@@ -66,7 +65,7 @@ const Sidebar = ({ activePage, setActivePage, sidebarOpen, setSidebarOpen }) => 
           localStorage.removeItem('role');
           window.location.href = '/home';
         }}
-        className="flex items-center gap-3 py-2 px-4 text-left rounded-md hover:bg-red-600 mt-auto transition"
+        className="flex items-center gap-3 py-2 px-4 text-left rounded-md hover:bg-red-100 text-red-600 mt-auto transition"
       >
         <FiLogOut />
         {sidebarOpen && 'Logout'}

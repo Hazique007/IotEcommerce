@@ -5,7 +5,7 @@ const devices = [
   { name: "Arduino", src: "./prod1.png" },
   { name: "ESP32", src: "./prod2.png" },
   { name: "Raspberry Pi", src: "./prod3.png" },
-  { name: "Node MCU", src: "./prod4.png" },
+  { name: "OrangePi", src: "./prod11.png" },
   { name: "STM32", src: "./prod5.png" },
 ];
 const floatAnim = {

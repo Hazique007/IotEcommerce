@@ -11,23 +11,35 @@ const Users = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const LIMIT = 10;
 
   useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [search]);
+
+  useEffect(() => {
     fetchUsers();
-  }, [page, search]);
+  }, [page, debouncedSearch]);
 
   const fetchUsers = async () => {
+    setLoading(true);
     try {
-      const res = await axios.get(`https://iotecommerce-2.onrender.com/api/auth/users`, {
-        params: { page, limit: LIMIT, search }
+      const res = await axios.get('http://localhost:5000/api/auth/users', {
+        params: { page, limit: LIMIT, search: debouncedSearch },
       });
       setUsers(res.data.users);
       setTotalPages(Math.ceil(res.data.total / LIMIT));
     } catch (err) {
-      console.error(err);
       toast.error('Failed to load users');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -38,12 +50,11 @@ const Users = () => {
 
   const handleSave = async (userID) => {
     try {
-      await axios.put(`https://iotecommerce-2.onrender.com/api/auth/users/${userID}`, editedData);
+      await axios.put(`http://localhost:5000/api/auth/users/${userID}`, editedData);
       toast.success('User updated');
       setEditingId(null);
       fetchUsers();
     } catch (err) {
-      console.error(err);
       toast.error('Update failed');
     }
   };
@@ -51,107 +62,118 @@ const Users = () => {
   const handleDelete = async (userID) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await axios.delete(`https://iotecommerce-2.onrender.com/api/users/${userID}`);
+        await axios.delete(`http://localhost:5000/api/users/${userID}`);
         toast.success('User deleted');
         fetchUsers();
       } catch (err) {
-        console.error(err);
         toast.error('Delete failed');
       }
     }
   };
 
   return (
-    <div className="p-6 text-white min-h-screen bg-[#f5f5f5] rounded-lg shadow-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-bold text-black">User Management</h2>
+    <div className="p-4 bg-[#f9fafb] text-black max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold">User Management</h2>
         <input
           type="text"
-          placeholder="Search by username..."
+          placeholder="Search users..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setPage(1);
-          }}
-          className="px-4 py-2 w-64 text-sm text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => setSearch(e.target.value)}
+          className="px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      <div className="overflow-x-auto bg-[#161b22] rounded-xl shadow-lg">
-        <table className="min-w-full text-sm text-left table-auto border-collapse">
-          <thead className="bg-[#1f2937] uppercase text-gray-400 text-xs">
+      {/* Compact Hero UI Table */}
+      <div className="overflow-hidden bg-white shadow ring-1 ring-gray-200 rounded-xl">
+        <table className="w-full text-sm divide-y divide-gray-100">
+          <thead className="bg-gray-50 text-left text-gray-500 uppercase tracking-wide">
             <tr>
-              <th className="px-4 py-3">ID</th>
-              <th className="px-4 py-3">Username</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Role</th>
-              <th className="px-4 py-3">Actions</th>
+              <th className="px-4 py-2">ID</th>
+              <th className="px-4 py-2">Username</th>
+              <th className="px-4 py-2">Email</th>
+              <th className="px-4 py-2">Role</th>
+              <th className="px-4 py-2">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr
-                key={u.userID}
-                className={`border-b border-gray-700 hover:bg-gray-800 transition ${
-                  editingId === u.userID ? 'bg-gray-800/50' : ''
-                }`}
-              >
-                <td className="px-4 py-3">{u.userID}</td>
-                <td className="px-4 py-3">
-                  {editingId === u.userID ? (
-                    <input
-                      value={editedData.username}
-                      onChange={(e) => setEditedData({ ...editedData, username: e.target.value })}
-                      className="bg-gray-700 px-2 py-1 rounded text-white outline-none"
-                    />
-                  ) : (
-                    u.username
-                  )}
-                </td>
-                <td className="px-4 py-3 text-gray-300">{u.email}</td>
-                <td className="px-4 py-3">
-                  {editingId === u.userID ? (
-                    <select
-                      value={editedData.role}
-                      onChange={(e) => setEditedData({ ...editedData, role: e.target.value })}
-                      className="bg-gray-700 px-2 py-1 rounded text-white outline-none"
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  ) : (
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        u.role === 'admin' ? 'bg-green-600' : 'bg-blue-600'
-                      }`}
-                    >
-                      {u.role}
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3 flex items-center gap-3">
-                  {editingId === u.userID ? (
-                    <button
-                      onClick={() => handleSave(u.userID)}
-                      className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
-                    >
-                      Save
-                    </button>
-                  ) : (
-                    <FiEdit
-                      onClick={() => handleEdit(u)}
-                      className="cursor-pointer hover:text-yellow-400"
+          <tbody className="divide-y divide-gray-100">
+            {loading ? (
+              [...Array(10)].map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td className="px-4 py-2"><div className="h-4 w-10 bg-gray-200 rounded" /></td>
+                  <td className="px-4 py-2"><div className="h-4 w-24 bg-gray-200 rounded" /></td>
+                  <td className="px-4 py-2"><div className="h-4 w-36 bg-gray-200 rounded" /></td>
+                  <td className="px-4 py-2"><div className="h-4 w-20 bg-gray-200 rounded" /></td>
+                  <td className="px-4 py-2"><div className="h-4 w-16 bg-gray-200 rounded" /></td>
+                </tr>
+              ))
+            ) : users.length > 0 ? (
+              users.map((u) => (
+                <tr key={u.userID} className="hover:bg-gray-50 transition duration-200">
+                  <td className="px-4 py-2 font-medium text-gray-700">{u.userID}</td>
+                  <td className="px-4 py-2">
+                    {editingId === u.userID ? (
+                      <input
+                        value={editedData.username}
+                        onChange={(e) => setEditedData({ ...editedData, username: e.target.value })}
+                        className="border px-2 py-1 rounded w-full"
+                      />
+                    ) : (
+                      u.username
+                    )}
+                  </td>
+                  <td className="px-4 py-2 text-gray-600">{u.email}</td>
+                  <td className="px-4 py-2">
+                    {editingId === u.userID ? (
+                      <select
+                        value={editedData.role}
+                        onChange={(e) => setEditedData({ ...editedData, role: e.target.value })}
+                        className="border px-2 py-1 rounded w-full"
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    ) : (
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                          u.role === 'admin'
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-blue-100 text-blue-800'
+                        }`}
+                      >
+                        {u.role}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-2 flex gap-4 items-center text-gray-500">
+                    {editingId === u.userID ? (
+                      <button
+                        onClick={() => handleSave(u.userID)}
+                        className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm"
+                      >
+                        Save
+                      </button>
+                    ) : (
+                      <FiEdit
+                        onClick={() => handleEdit(u)}
+                        className="cursor-pointer hover:text-yellow-500"
+                        size={18}
+                      />
+                    )}
+                    <FiTrash2
+                      onClick={() => handleDelete(u.userID)}
+                      className="cursor-pointer hover:text-red-500"
                       size={18}
                     />
-                  )}
-                  <FiTrash2
-                    onClick={() => handleDelete(u.userID)}
-                    className="cursor-pointer hover:text-red-500"
-                    size={18}
-                  />
-                </td>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className="text-center py-6 text-gray-400">No users found.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
@@ -167,7 +189,7 @@ const Users = () => {
         >
           Prev
         </button>
-        <span className="text-black font-medium">
+        <span className="text-sm text-gray-700">
           Page {page} of {totalPages}
         </span>
         <button

@@ -9,21 +9,28 @@ import { IoArrowBack } from 'react-icons/io5';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCart } from '../context/cartcontext';
 
-
 const ProductDetails = () => {
-
   const navigate = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [cartShake, setCartShake] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const { addItem, getTotalCount, fetchCart } = useCart();
 
   useEffect(() => {
+    setLoading(true);
     axios
-      .get(`https://iotecommerce-2.onrender.com/api/products/${id}`)
-      .then((res) => setProduct(res.data))
-      .catch((err) => console.error(err));
+      .get(`http://localhost:5000/api/products/${id}`)
+      .then((res) => {
+        setProduct(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error('Failed to load product');
+        setLoading(false);
+      });
   }, [id]);
 
   const addToCart = async () => {
@@ -37,7 +44,7 @@ const ProductDetails = () => {
 
     try {
       await axios.post(
-        'https://iotecommerce-2.onrender.com/api/cart/add',
+        'http://localhost:5000/api/cart/add',
         {
           productID: product.id,
           quantity: 1,
@@ -49,16 +56,17 @@ const ProductDetails = () => {
         }
       );
 
-      addItem(product);        // local context
-      await fetchCart();       // sync with DB
+      addItem(product); // local context
+      await fetchCart(); // sync with DB
       setCartShake(true);
       toast.success('🛒 Added to cart!');
       setTimeout(() => setCartShake(false), 800);
     } catch (err) {
       console.error(err);
-      toast.error(' Failed to add to cart');
+      toast.error('Failed to add to cart');
     }
   };
+
   const buyNow = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -68,7 +76,7 @@ const ProductDetails = () => {
 
     try {
       await axios.post(
-        'https://iotecommerce-2.onrender.com/api/orders/buynow',
+        'http://localhost:5000/api/orders/buynow',
         { productID: product.id },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -81,8 +89,16 @@ const ProductDetails = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+        <div className="animate-pulse text-xl font-bold">Loading product details...</div>
+      </div>
+    );
+  }
 
-  if (!product) return <div className="text-white p-10">Loading...</div>;
+  const isOutOfStock = product.quantity === 0;
+  const isLowStock = product.quantity > 0 && product.quantity < 5;
 
   return (
     <section className="h-screen relative text-white overflow-y-auto p-4 md:p-0">
@@ -125,23 +141,33 @@ const ProductDetails = () => {
               <FaStar />
               <span className="ml-2">4.5 / 5</span>
             </div>
+            {isOutOfStock ? (
+              <div className="text-red-500 font-bold mb-1">❌ Out of Stock</div>
+            ) : isLowStock ? (
+              <div className="text-yellow-500 font-medium mb-1">Only {product.quantity} left in stock</div>
+            ) : null}
             <div className="text-2xl font-semibold mb-6">${product.price}</div>
             <ul className="list-disc list-inside text-gray-300 space-y-1 mb-6">
               {['f1', 'f2', 'f3'].map((f) => product[f] && <li key={f}>{product[f]}</li>)}
             </ul>
             <button
               onClick={addToCart}
-              className="bg-[#c20001] text-white w-full py-3 mb-3 rounded font-semibold"
+              disabled={isOutOfStock}
+              className={`w-full py-3 mb-3 rounded font-semibold ${
+                isOutOfStock ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#c20001] text-white'
+              }`}
             >
               Add to Cart
             </button>
             <button
               onClick={buyNow}
-              className="bg-white text-black px-6 py-3 rounded font-semibold hover:bg-gray-100"
+              disabled={isOutOfStock}
+              className={`px-6 py-3 rounded font-semibold w-full ${
+                isOutOfStock ? 'bg-gray-300 text-gray-700 cursor-not-allowed' : 'bg-white text-black hover:bg-gray-100'
+              }`}
             >
               Buy Now
             </button>
-
           </div>
         </div>
 
@@ -161,6 +187,11 @@ const ProductDetails = () => {
               <FaStar />
               <span className="ml-2">4.5 / 5</span>
             </div>
+            {isOutOfStock ? (
+              <div className="text-red-500 font-bold mb-2">❌ Out of Stock</div>
+            ) : isLowStock ? (
+              <div className="text-yellow-500 font-medium mb-2">Only {product.quantity} left in stock</div>
+            ) : null}
             <div className="text-3xl font-semibold mb-6">${product.price}</div>
             <ul className="list-disc list-inside text-gray-300 space-y-1 mb-6">
               {['f1', 'f2', 'f3'].map((f) => product[f] && <li key={f}>{product[f]}</li>)}
@@ -168,17 +199,22 @@ const ProductDetails = () => {
             <div className="flex gap-4">
               <button
                 onClick={addToCart}
-                className="bg-[#c20001] text-white px-6 py-3 rounded font-semibold hover:opacity-90"
+                disabled={isOutOfStock}
+                className={`px-6 py-3 rounded font-semibold ${
+                  isOutOfStock ? 'bg-gray-400 text-gray-700 cursor-not-allowed' : 'bg-[#c20001] text-white hover:opacity-90'
+                }`}
               >
                 Add to Cart
               </button>
-             <button
-              onClick={buyNow}
-              className="bg-white text-black px-6 py-3 rounded font-semibold hover:bg-gray-100"
-            >
-              Buy Now
-            </button>
-
+              <button
+                onClick={buyNow}
+                disabled={isOutOfStock}
+                className={`px-6 py-3 rounded font-semibold ${
+                  isOutOfStock ? 'bg-gray-300 text-gray-700 cursor-not-allowed' : 'bg-white text-black hover:bg-gray-100'
+                }`}
+              >
+                Buy Now
+              </button>
             </div>
           </div>
         </div>

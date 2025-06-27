@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { toast, ToastContainer } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { IoArrowBack } from 'react-icons/io5';
 import 'react-toastify/dist/ReactToastify.css';
 
 const AuthPage = () => {
@@ -11,6 +13,8 @@ const AuthPage = () => {
     email: '',
     password: ''
   });
+
+  const navigate = useNavigate();
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
@@ -25,16 +29,18 @@ const AuthPage = () => {
 
     try {
       const url = isLogin
-        ? 'https://iotecommerce-2.onrender.com/api/auth/login'
-        : 'https://iotecommerce-2.onrender.com/api/auth/signup';
+        ? 'http://localhost:5000/api/auth/login'
+        : 'http://localhost:5000/api/auth/signup';
 
       const { data } = await axios.post(url, formData);
 
       if (isLogin) {
         localStorage.setItem('token', data.token);
         toast.success('Login successful');
+
+        const lastToLast = localStorage.getItem('lastToLastVisited');
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = lastToLast || '/home';
         }, 1500);
       } else {
         toast.success('Signup successful. You can now login.');
@@ -47,7 +53,16 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#c20001] via-[#3a0001] to-black px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#c20001] via-[#3a0001] to-black px-4 relative">
+      {/* Back Button */}
+      <button
+        onClick={() => navigate(-1)}
+        className="absolute top-4 left-4 bg-white/10 border border-white/30 text-white rounded-full p-3 hover:bg-white/20 transition"
+        title="Go Back"
+      >
+        <IoArrowBack size={20} />
+      </button>
+
       <motion.div
         initial={{ opacity: 0, y: 80 }}
         animate={{ opacity: 1, y: 0 }}
