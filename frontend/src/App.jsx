@@ -22,6 +22,8 @@ import profile from './pages/profile.jsx';
 import AddUseCase from './pages/useCaseForm.jsx';
 import LocationTracker from './pages/CustomPages/locationtracker.jsx';
 import InventoryDashboard from './pages/inventoryManagement/inventroyDashbaord.jsx';
+import UserOrderHistory from './pages/userOrderspage.jsx';
+import OrdersDashboard from './pages/orderDashboard/DashboardOrders.jsx';
 
 const App = () => {
   return (
@@ -35,6 +37,8 @@ const App = () => {
         <Route path="/product-details/:id" Component={ProductDetails} />
         <Route path="/inventory-dash" Component={InventoryDashboard} />
         <Route path="/add-usecase" Component={AddUseCase} />
+        <Route path="/user-orders" Component={UserOrderHistory} />
+        <Route path="/orders-dash" Component={OrdersDashboard} />
         <Route path="/unauthorized" Component={Unauthorized} />
         <Route
           path="/admin-dash"

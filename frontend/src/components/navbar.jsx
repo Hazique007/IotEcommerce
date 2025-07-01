@@ -45,7 +45,7 @@ const Navbar = () => {
     { label: 'Home', to: '/home' },
     { label: 'Products', to: '/allprodcuts' },
     { label: 'Cart', to: '/cart' },
-    { label: 'About', to: '/about' },
+    { label: 'My Orders', to: '/user-orders' },
   ];
 
   const handleLogout = () => {

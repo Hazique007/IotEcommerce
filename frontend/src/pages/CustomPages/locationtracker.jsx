@@ -6,10 +6,16 @@ const LocationTracker = () => {
   const prevLocationRef = useRef(null);
 
   useEffect(() => {
-    if (prevLocationRef.current) {
-      localStorage.setItem('lastToLastVisited', prevLocationRef.current);
+    const currentPath = location.pathname;
+
+    if (currentPath !== '/login') {
+      if (prevLocationRef.current && prevLocationRef.current !== '/login') {
+        localStorage.setItem('lastToLastVisited', prevLocationRef.current);
+      }
+
+      localStorage.setItem('lastVisited', currentPath);
+      prevLocationRef.current = currentPath;
     }
-    prevLocationRef.current = location.pathname;
   }, [location]);
 
   return null;

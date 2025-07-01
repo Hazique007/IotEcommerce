@@ -105,9 +105,8 @@ const MovementHistory = () => {
                   <td className="px-4 py-2">{move.id}</td>
                   <td className="px-4 py-2">{move.product_name}</td>
                   <td
-                    className={`px-4 py-2 font-medium ${
-                      move.change_type === 'add' ? 'text-green-600' : 'text-red-600'
-                    }`}
+                    className={`px-4 py-2 font-medium ${move.change_type === 'add' ? 'text-green-600' : 'text-red-600'
+                      }`}
                   >
                     {move.change_type === 'add' ? 'Add' : 'Deduct'}
                   </td>
@@ -124,24 +123,32 @@ const MovementHistory = () => {
           </tbody>
         </table>
 
+       
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="flex justify-center mt-6 flex-wrap gap-2">
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setCurrentPage(i + 1)}
-                className={`px-3 py-1 rounded border text-sm ${
-                  currentPage === i + 1
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-blue-600 border-blue-600'
-                } hover:opacity-80 transition`}
-              >
-                {i + 1}
-              </button>
-            ))}
+          <div className="flex justify-between items-center mt-6">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border rounded disabled:opacity-50"
+            >
+              ← Prev
+            </button>
+
+            <span className="text-sm text-gray-600">
+              Page {currentPage} of {totalPages}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages || totalCount === 0}
+              className="px-4 py-2 border rounded disabled:opacity-50"
+            >
+              Next →
+            </button>
           </div>
         )}
+
       </div>
     </motion.div>
   );

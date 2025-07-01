@@ -216,31 +216,36 @@ const getPopularProducts = async (req, res) => {
 };
 
 const getMovementsByProduct = async (req, res) => {
-  const { productId } = req.params;
+  const productId = req.params.productId;
   const page = parseInt(req.query.page) || 1;
   const limit = parseInt(req.query.limit) || 10;
   const offset = (page - 1) * limit;
+  const type = req.query.type; // 'add', 'deduct', or 'all'
 
   try {
-    const [movements] = await db.execute(`
-      SELECT 
-        id, change_type, quantity, received_by, received_date,
-        invoice_number, note, created_at
-      FROM inventory_movements
-      WHERE product_id = ?
-      ORDER BY created_at DESC
-      LIMIT ? OFFSET ?
-    `, [productId, limit, offset]);
+    let where = 'WHERE product_id = ?';
+    let values = [productId];
 
-    const [[{ total }]] = await db.execute(
-      'SELECT COUNT(*) as total FROM inventory_movements WHERE product_id = ?',
-      [productId]
+    if (type && (type === 'add' || type === 'deduct')) {
+      where += ' AND change_type = ?';
+      values.push(type);
+    }
+
+    const [totalRows] = await db.execute(
+      `SELECT COUNT(*) as total FROM inventory_movements ${where}`,
+      values
+    );
+    const total = totalRows[0].total;
+
+    const [movements] = await db.execute(
+      `SELECT * FROM inventory_movements ${where} ORDER BY created_at DESC LIMIT ? OFFSET ?`,
+      [...values, limit, offset]
     );
 
     res.json({ movements, total });
   } catch (err) {
-    console.error('Error fetching movement history:', err);
-    res.status(500).json({ msg: 'Failed to fetch history' });
+    console.error('Error fetching product history:', err);
+    res.status(500).json({ msg: 'Failed to fetch product movement history' });
   }
 };
 

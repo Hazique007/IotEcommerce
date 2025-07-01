@@ -126,7 +126,7 @@ const InventoryOverview = () => {
         transition={{ delay: 0.6 }}
       >
         {/* Bar Chart */}
-        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow">
+        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow hover:shadow-lg">
           <h2 className="text-xl font-semibold mb-4">Monthly Stock Trend</h2>
           <div className="h-64">
             <Bar
@@ -146,7 +146,7 @@ const InventoryOverview = () => {
         </div>
 
         {/* Line Chart or Table Toggle */}
-        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow relative">
+        <div className="bg-white border border-gray-200 p-6 rounded-xl shadow hover:shadow-lg relative">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold">Category Distribution</h2>
             <button
